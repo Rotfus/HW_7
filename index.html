@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="display"></div>
+    <div id="recordCount"></div>
+    <button onclick="first()">First</button>
+    <button onclick="next()">Next</button>
+    <button onclick="prev()">Prev</button>
+    <button onclick="last()">Last</button>
+    <button onclick="showAllBooks()">Show All Books</button>
+    <button onclick="showReverseOrder()">Show Books in Reverse Order</button>
+    <button onclick="save()">Save</button>
+    <button onclick="load()">Load</button>
+    <br><br>
+    <input type="text" id="newBookName" placeholder="Enter Book Name">
+    <br><br>
+    <input type="text" id="newAuthorName" placeholder="Enter Author Name">
+    <br>
+    <button onclick="addNewBook()">Add New Book</button>
+
+
+
+
+    <script>
+        const MY_SERVER = `http://localhost:3000/books`
+        let books = []
+        let index = 0
+
+        function updateDisplay() {
+            display.innerHTML = books[index].book
+            display.innerHTML += books[index].author
+            recordCount.innerHTML = `Book ${index + 1} out of ${books.length}`
+
+        }
+        function first() {
+            index = 0
+            updateDisplay()
+
+        }
+
+        function next() {
+            index = ++index < books.length ? index++ : 0;
+            updateDisplay()
+
+        }
+
+        function prev() {
+            index--
+            updateDisplay()
+        }
+
+        function last() {
+            index = books.length - 1
+            updateDisplay()
+        }
+
+        function showAllBooks() {
+            let allBooksHTML = '<ul>';
+            books.forEach(book => {
+                allBooksHTML += `<li>${book.book} by ${book.author}</li>`;
+            });
+            allBooksHTML += '</ul>';
+            display.innerHTML = allBooksHTML;
+            recordCount.innerHTML = `Showing all ${books.length} books`;
+        }
+
+        function showReverseOrder() {
+            let reverseBooksHTML = '<ul>';
+            for (let i = books.length - 1; i >= 0; i--) {
+                reverseBooksHTML += `<li>${books[i].book} by ${books[i].author}</li>`;
+            }
+            reverseBooksHTML += '</ul>';
+            display.innerHTML = reverseBooksHTML;
+            recordCount.innerHTML = `Showing all ${books.length} books in reverse order`;
+        }
+
+
+        function addNewBook() {
+            const newBookName = document.getElementById('newBookName').value;
+            const newAuthorName = document.getElementById('newAuthorName').value;
+
+            if (newBookName && newAuthorName) {
+                const newBook = { book: newBookName, author: newAuthorName };
+                books.push(newBook);
+                updateDisplay();
+
+                document.getElementById('newBookName').value = '';
+                document.getElementById('newAuthorName').value = '';
+            }
+        }
+
+
+        async function getData() {
+            books = await fetch(MY_SERVER).then(response => response.json())
+            updateDisplay()
+        }
+
+        function save() {
+            localStorage.setItem("books", JSON.stringify(books))
+        }
+
+        function load() {
+            console.log(JSON.parse(localStorage.getItem("books")))
+        }
+
+        getData()
+        load()
+
+
+
+    </script>
+</body>
+
+</html>
